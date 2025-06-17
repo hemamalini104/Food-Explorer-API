@@ -83,13 +83,3 @@ src/
   * `https://world.openfoodfacts.org/category/[category].json`
 
 ---
-
-## **Contributing**
-
-Feel free to fork this repository, raise issues, or submit pull requests. All contributions are welcome.
-
----
-
-## **License**
-
-This project is open source and available under the [MIT License](LICENSE).
