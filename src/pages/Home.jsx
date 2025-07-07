@@ -12,20 +12,21 @@ const Home = () => {
   const [products, setProducts] = useState([]);
 
   useEffect(() => {
-    const fetchProducts = async () => {
-      let res;
-      if (category) {
-        res = await getProductsByCategory(category);
-        setProducts(res.data.products);
-      } else {
-        res = await searchProductsByName(query);
-        setProducts(res.data.products);
+    const fetchData = async () => {
+      try {
+        const response = category
+          ? await getProductsByCategory(category)
+          : await searchProductsByName(query);
+        setProducts(response.data.products || []);
+      } catch (error) {
+        console.error("Fetch error:", error);
       }
     };
-    fetchProducts();
+
+    fetchData();
   }, [query, category]);
 
-  const sortedProducts = [...products].sort((a, b) => {
+  const sorted = [...products].sort((a, b) => {
     if (sort === "az") return a.product_name.localeCompare(b.product_name);
     if (sort === "za") return b.product_name.localeCompare(a.product_name);
     if (sort === "nutrition-asc") return (a.nutrition_grades || "").localeCompare(b.nutrition_grades || "");
@@ -35,55 +36,46 @@ const Home = () => {
 
   return (
     <div
-      className="min-h-screen bg-cover bg-fixed bg-no-repeat text-gray-800"
+      className="min-h-screen bg-cover bg-fixed text-gray-900"
       style={{
-        backgroundImage:
-          'url("https://img.freepik.com/premium-photo/doodle-food-icons-seamless-background_3248-3676.jpg")',
+        backgroundImage: `url('https://png.pngtree.com/background/20250104/original/pngtree-fast-food-doodle-pattern-in-orange-line-art-picture-image_16133277.jpg')`,
       }}
     >
-      {/* Overlay to reduce brightness for better readability */}
-      <div className="bg-white bg-opacity-70 min-h-screen">
-        {/* Hero / Header Section */}
-        <section className="bg-gradient-to-r from-green-200 via-yellow-100 to-pink-100 py-12 mb-8 shadow-inner">
-          <div className="text-center">
-            <h1 className="text-4xl font-extrabold text-green-800 drop-shadow-sm">
-              Explore Food Products
-            </h1>
-            <p className="mt-2 text-lg text-gray-700 font-medium">
-              Discover nutrition facts, ingredients, and more
-            </p>
+      <div className="bg-white/80 backdrop-blur-sm min-h-screen">
+        {/* Top Banner */}
+        <header className="py-14 bg-gradient-to-r from-green-100 via-orange-50 to-yellow-100 shadow">
+          <div className="text-center px-6">
+            <h1 className="text-5xl font-extrabold text-orange-600 drop-shadow-sm">🍕 Food Explorer 🍔</h1>
+            <p className="text-lg font-medium text-gray-700 mt-2">Discover your favorite foods with nutrition info!</p>
           </div>
-        </section>
+        </header>
 
         {/* Filters */}
-        <div className="max-w-6xl mx-auto px-4 md:px-0 mb-6">
-          <div className="flex flex-col md:flex-row gap-4 justify-center items-center">
+        <div className="max-w-7xl mx-auto px-4 mt-10">
+          <div className="flex flex-col lg:flex-row gap-6 items-center justify-center">
             <SearchBar onSearch={setQuery} />
             <Filter onFilter={setCategory} />
             <Sort onSort={setSort} />
           </div>
         </div>
 
-        {/* Products Grid */}
-        <main className="max-w-6xl mx-auto px-4 md:px-0 pb-12">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {sortedProducts.map((product) => (
-              <div
-                key={product.code}
-                className="p-4 rounded-xl shadow-md hover:shadow-lg transition 
-                           bg-gradient-to-br from-green-100 via-yellow-50 to-pink-100"
-              >
-                <ProductCard product={product} />
-              </div>
-            ))}
-          </div>
-
-          {sortedProducts.length === 0 && (
-            <div className="text-center text-gray-600 mt-10">
-              No products found for this filter or query.
+        {/* Product Display */}
+        <section className="max-w-7xl mx-auto px-4 mt-12 pb-24">
+          {sorted.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+              {sorted.map((product) => (
+                <div
+                  key={product.code}
+                  className="rounded-xl bg-white shadow-md hover:shadow-xl transition transform hover:-translate-y-1"
+                >
+                  <ProductCard product={product} />
+                </div>
+              ))}
             </div>
+          ) : (
+            <p className="text-center text-xl text-gray-500 mt-16">No products found. Try another search.</p>
           )}
-        </main>
+        </section>
       </div>
     </div>
   );

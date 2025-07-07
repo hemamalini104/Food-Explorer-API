@@ -8,45 +8,86 @@ const ProductDetail = () => {
 
   useEffect(() => {
     const fetchDetails = async () => {
-      const res = await getProductByBarcode(barcode);
-      setProduct(res.data.product);
+      try {
+        const res = await getProductByBarcode(barcode);
+        setProduct(res.data.product);
+      } catch (err) {
+        console.error("Error fetching product details:", err);
+      }
     };
     fetchDetails();
   }, [barcode]);
 
-  if (!product) return <p className="text-center mt-10 text-gray-500">Loading...</p>;
+  if (!product) {
+    return (
+      <div className="text-center mt-12 text-gray-600 text-lg font-medium">
+        Loading product details...
+      </div>
+    );
+  }
+
+  const {
+    image_front_url,
+    product_name,
+    ingredients_text,
+    nutrition_grades,
+    nutriments,
+    labels,
+  } = product;
 
   return (
     <div
-      className="min-h-screen bg-cover bg-center bg-no-repeat text-gray-800 p-6"
+      className="min-h-screen p-6 bg-cover bg-fixed text-gray-900"
       style={{
-        backgroundImage: `url('https://images.unsplash.com/photo-1551218808-94e220e084d2?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80')`,
+        backgroundImage: `url('https://images.unsplash.com/photo-1543353071-10c8ba85a904?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8Zm9vZCUyMGJhY2tncm91bmR8ZW58MHx8MHx8fDA%3D')`,
       }}
     >
-      <div className="backdrop-blur-md bg-white/70 max-w-4xl mx-auto rounded-xl shadow-lg p-6">
-        <div className="flex flex-col md:flex-row gap-6 items-center">
-          <img
-            src={product.image_front_url}
-            alt={product.product_name}
-            className="w-64 h-64 object-contain rounded-xl shadow"
-          />
+      <div className="bg-white/80 backdrop-blur-md max-w-6xl mx-auto rounded-3xl shadow-xl px-6 py-10">
+        <div className="flex flex-col md:flex-row gap-10 items-start">
+          {/* Product Image */}
+          <div className="w-full md:w-1/3 flex justify-center">
+            <img
+              src={image_front_url}
+              alt={product_name}
+              className="rounded-2xl w-64 h-64 object-contain shadow-md"
+            />
+          </div>
 
-          <div className="flex-1">
-            <h2 className="text-3xl font-extrabold text-green-800 mb-2">{product.product_name}</h2>
-            <p className="text-gray-700 text-lg mb-2">
-              <span className="font-semibold">Ingredients:</span> {product.ingredients_text || "Not available"}
+          {/* Product Info */}
+          <div className="flex-1 space-y-3">
+            <h1 className="text-4xl font-bold text-green-800">{product_name}</h1>
+
+            <p className="text-base">
+              <span className="font-semibold">Ingredients:</span>{" "}
+              {ingredients_text || "Not available"}
             </p>
-            <p className="text-gray-700 mb-1">
+
+            <p>
               <span className="font-semibold">Nutrition Grade:</span>{" "}
-              <span className="uppercase">{product.nutrition_grades || "N/A"}</span>
+              <span className="uppercase">{nutrition_grades || "N/A"}</span>
             </p>
 
-            <div className="mt-4 space-y-1 text-gray-700">
-              <p><span className="font-semibold">Energy:</span> {product.nutriments?.energy} {product.nutriments?.energy_unit}</p>
-              <p><span className="font-semibold">Fat:</span> {product.nutriments?.fat} g</p>
-              <p><span className="font-semibold">Carbohydrates:</span> {product.nutriments?.carbohydrates} g</p>
-              <p><span className="font-semibold">Proteins:</span> {product.nutriments?.proteins} g</p>
-              <p><span className="font-semibold">Labels:</span> {product.labels || "None"}</p>
+            {/* Nutritional Details */}
+            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+              <p>
+                <span className="font-medium">Energy:</span>{" "}
+                {nutriments?.energy} {nutriments?.energy_unit || ""}
+              </p>
+              <p>
+                <span className="font-medium">Fat:</span> {nutriments?.fat} g
+              </p>
+              <p>
+                <span className="font-medium">Carbohydrates:</span>{" "}
+                {nutriments?.carbohydrates} g
+              </p>
+              <p>
+                <span className="font-medium">Proteins:</span>{" "}
+                {nutriments?.proteins} g
+              </p>
+              <p>
+                <span className="font-medium">Labels:</span>{" "}
+                {labels || "None"}
+              </p>
             </div>
           </div>
         </div>

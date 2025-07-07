@@ -2,51 +2,51 @@ import { useEffect, useState } from "react";
 import { getCategories } from "../services/api";
 
 const Filter = ({ onFilter }) => {
-  const [categories, setCategories] = useState([]);
-
-  // Custom filter options mapped to real API categories
-  const customOptions = [
+  const [options, setOptions] = useState([]);
+  
+  const featuredOptions = [
     { label: "Top Rated", value: "snacks" },
     { label: "Popular", value: "beverages" },
     { label: "Low Calories", value: "plant-based-foods" },
   ];
 
   useEffect(() => {
-    const fetchCategories = async () => {
+    const loadCategoryList = async () => {
       try {
-        const res = await getCategories();
-        const fetched = res.data.tags
-          .map(tag => tag.name)
-          .filter(Boolean)
+        const response = await getCategories();
+        const tags = response.data.tags
+          ?.map(tag => tag.name)
+          .filter(name => name)
           .slice(0, 30);
 
-        setCategories(fetched);
-      } catch (err) {
-        console.error("Error fetching categories:", err);
+        setOptions(tags || []);
+      } catch (error) {
+        console.error("Failed to load categories:", error);
       }
     };
-    fetchCategories();
+
+    loadCategoryList();
   }, []);
 
   return (
-    <div className="w-full max-w-xs">
+    <div className="w-full max-w-sm">
       <select
         onChange={(e) => onFilter(e.target.value)}
-        className="w-full border border-gray-300 px-4 py-2 rounded-md shadow-sm bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-400"
+        className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-gray-700 focus:ring-2 focus:ring-green-500"
       >
         <option value="">All Categories</option>
 
-        {/* Custom Options */}
-        {customOptions.map((opt, idx) => (
-          <option key={`custom-${idx}`} value={opt.value}>
-            {opt.label}
+        {/* Featured Filters */}
+        {featuredOptions.map(({ label, value }, i) => (
+          <option key={`featured-${i}`} value={value}>
+            {label}
           </option>
         ))}
 
-        {/* Dynamic Category Options */}
-        {categories.map((cat, idx) => (
-          <option key={`cat-${idx}`} value={cat}>
-            {cat.replace(/-/g, " ").replace(/\b\w/g, l => l.toUpperCase())}
+        {/* Fetched Categories */}
+        {options.map((name, i) => (
+          <option key={`cat-${i}`} value={name}>
+            {name.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())}
           </option>
         ))}
       </select>
